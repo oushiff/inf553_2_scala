@@ -32,42 +32,25 @@ object Fan_Fei_Spark {
 
 
   def getTokens(line: String): Array[String] = {
-    val pattern1 = """^\('(.+)', '(.+)'\)$|^\('(.+)', "(.+)"\)$|^\("(.+)", '(.+)'\)$|^\("(.+)", "(.+)"\)$""".r
+    val pattern1 = """^\('(.*)', '(.*)'\)$|^\('(.*)', "(.*)"\)$|^\("(.*)", '(.*)'\)$|^\("(.*)", "(.*)"\)$""".r
     val pattern1(a1,a2,a3,a4,a5,a6,a7,a8) = line
 
     var tokens = new Array[String](2)
-    var index = 0
-    if (a1 != null) {
-      tokens(index) = a1
-      index += 1
+    if (a1 != null || a2 != null) {
+      tokens(0) = a1
+      tokens(1) = a2
     }
-    if (a2 != null) {
-      tokens(index) = a2
-      index += 1
+    else if (a3 != null || a4 != null) {
+      tokens(0) = a3
+      tokens(1) = a4
     }
-    if (a3 != null) {
-      tokens(index) = a3
-      index += 1
+    else if (a5 != null || a6 != null) {
+      tokens(0) = a5
+      tokens(1) = a6
     }
-    if (a4 != null) {
-      tokens(index) = a4
-      index += 1
-    }
-    if (a5 != null) {
-      tokens(index) = a5
-      index += 1
-    }
-    if (a6 != null) {
-      tokens(index) = a6
-      index += 1
-    }
-    if (a7 != null) {
-      tokens(index) = a7
-      index += 1
-    }
-    if (a8 != null) {
-      tokens(index) = a8
-      index += 1
+    else if (a7 != null || a8 != null) {
+      tokens(0) = a7
+      tokens(1) = a8
     }
 
     return tokens
@@ -88,21 +71,6 @@ object Fan_Fei_Spark {
 //    val support = arg(2).toInt
 
 
-//    for (line <- textActress) {
-//      val tokens = getTokens(line)
-//      tokens.foreach(println)
-//      println("\n\n")
-//
-//    }
-
-
-//    val res = textActress
-//      .map(line => getTokens(line))
-//      .reduce(_ ++ _)
-//      .groupBy( _(0))
-//
-
-
     var stdActress = textActress
       .map(line => getTokens(line))
       .map(token=>(token(0), token(1)))
@@ -112,70 +80,40 @@ object Fan_Fei_Spark {
       .map(token=>(token(0), token(1)))
 
 
-//    res111.foreach(println)
-
     val actress_actress = stdActress
       .join(stdActress)
-      //.map(kv => (kv._1, kv._2))
       .filter(kv => kv._2._1 < kv._2._2)
       .map(kv => ((kv._2._1, kv._2._2), 1))
       .reduceByKey(_ + _)
       .filter(kv => kv._2 > support)
-      .sortBy(kv => kv._1)
-      .foreach(line => println(line))
-
-    println("^^^^^^^^^^^^^^^\n\n")
-
+      //.sortBy(kv => kv._1)
+      //.foreach(line => println(line))
 
     val director_director = stdDirector
       .join(stdDirector)
-      //.map(kv => (kv._1, kv._2))
       .filter(kv => kv._2._1 < kv._2._2)
       .map(kv => ((kv._2._1, kv._2._2), 1))
       .reduceByKey(_ + _)
       .filter(kv => kv._2 > support)
-      .sortBy(kv => kv._1)
-      .foreach(line => println(line))
+      //.sortBy(kv => kv._1)
+      //.foreach(line => println(line))
 
-    //res222.map(line => println(line))////.foreach(println)
-
-    println("^^^^11111111^^^^^^^^^^^\n\n")
 
     val actress_director = stdActress
       .join(stdDirector)
-      //.map(kv => (kv._1, kv._2))
-      //.filter(kv => kv._2._1 < kv._2._2)
       .map(kv => ((kv._2._1, kv._2._2), 1))
       .reduceByKey(_ + _)
       .filter(kv => kv._2 > support)
-      .sortBy(kv => kv._1)
-      .foreach(line => println(line))
+      //.sortBy(kv => kv._1)
+      //.foreach(line => println(line))
 
-
-
-  //  res111.foreach(println)
-    //      .map( kv => (kv._1, kv._2.map())
-
+    val res = (actress_actress ++ actress_director ++ director_director)
+      .sortBy(kv => kv._2)
 
     //res.foreach(println)
-//    res.foreach(line => line.foreach(println))
 
+    res.saveAsTextFile("fan_fei_spark")
 
-    //    val lines = textTwitter
-//      .flatMap(line=>JSON.parseFull(line).get.asInstanceOf[Map[String,String]].get("text"))
-//      .map(line=>{
-//        line
-//          .split(" ")
-//          .map(word=>sentiMap.getOrElse(toUTF(wordStandize(word)), "0").toInt)
-//          .reduce(_ + _)
-//      })
-//      .zipWithIndex()
-//      .map(input=>(input._2 + 1, input._1))
-//
-//    //lines.foreach(println)
-//
-//    lines.saveAsTextFile("fei_fan_tweets_sentiment_first20")
-//
 
 
   }
